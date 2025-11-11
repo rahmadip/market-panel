@@ -22,36 +22,78 @@ if len(head) == 0:
 elif len(head) == 4:
     pageStatus = st.progress(0)
     
-    dataTicker = app.code(head)
+    data = app.code(head)
         
     c4,c5,c6 = st.columns([2,1,1])
     with c4:
         mrktPriceContainer = st.container(border=True)
         with mrktPriceContainer:
-            st.subheader('Market Price')
-            tabs= st.tabs(['1D','7D'])
-            st.info('under development')
-        with st.expander(f'Summary {head}', expanded=True):
-            summary1,summary2,summary3 = st.columns([0.65,2,2])
+            mpc1, mpc2 = st.columns([1,9])
+            with mpc1:
+                st.image(
+                    data['logo'],
+                    width='stretch'
+                )
+            with mpc2:
+                st.metric(
+                    label=data['name'],
+                    value=f'Rp {data['price']:,.2f}',
+                )
+            tabs = st.tabs(app.mrktPriceSetup.keys())
+            for tab, name in zip(tabs, app.mrktPriceSetup.keys()):
+                with tab:
+                    setting = app.mrktPriceSetup[name]
+                    try:
+                        df = data['ticker'].history(
+                            period=setting['period'],
+                            interval=setting['interval']
+                        )
+                        if df is None or df.empty or 'Volume' not in df.columns:
+                            st.warning('data not available')
+                        else:
+                            df = df[df['Volume'] > 0]
+                            if df.empty:
+                                st.warning('data not available')
+                            else:
+                                st.plotly_chart(
+                                    app.mrktPriceGraph(df),
+                                    use_container_width=True,
+                                    config=app.chart
+                                )
+                    except Exception as e:
+                        st.warning('data not available')
+
+        with st.expander(f'Summary', expanded=False):
+            summary1,summary2 = st.columns([1,9])
             with summary1:
-                st.image({dataTicker['logo']})
+                st.image(data['logo'])
             with summary2:
+                st.metric(
+                    label=f':orange[{data['name']}]',
+                    value=head.upper()
+                )
+            infoC,aboutC = st.tabs(['More Information','About Company'])
+            with infoC:
                 st.write(f':orange[Ticker]: {head}')
-                st.write(f':orange[Company]: {dataTicker['name']}')
-                st.write(f':orange[Sector]: {dataTicker['sector']}')
-            with summary3:
-                st.write(f':orange[Market Cap]: Rp {app.formatNumber(dataTicker['marketCap'])}')
-                st.write(f':orange[Shares]: {dataTicker['shares']:,.0f}')
+                st.write(f':orange[Company]: {data['name']}')
+                st.write(f':orange[Sector]: {data['sector']}')
+                st.write(f':orange[Market Cap]: Rp {app.formatNumber(data['marketCap'])}')
+                st.write(f':orange[Shares]: {data['shares']:,.0f}')
+                st.info('under development')
+            with aboutC:
+                st.info('under development')
+
     with c5:
         incomestmtC = st.container(border=True)
         with incomestmtC:
-            st.subheader('Income Statement')
+            st.subheader('Income Statement.')
             annualIS,quarterIS = st.tabs(['Annual', 'Quarter'])
             st.info('under development')
+
     with c6:
         balanceSheetC = st.container(border=True)
         with balanceSheetC:
-            st.subheader('Balance Sheet')
+            st.subheader('Balance Sheet.')
             annualBS,quarterBS = st.tabs(['Annual','Quarter'])
             st.info('under development')
     

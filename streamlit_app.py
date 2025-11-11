@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import yfinance as yf
+import plotly.express as px
 from urllib.parse import urlparse
 
 # LOGIC
@@ -80,6 +81,92 @@ def headComp(
         st.write(':orange[_Information:_]')
         st.write(info)
     return key
+
+def mrktPriceGraph(df):
+    startPrice = df['Close'].iloc[0]
+    endPrice = df['Close'].iloc[-1]
+    minClose = float(df['Close'].min())
+    maxClose = float(df['Close'].max())
+    minDate = df['Close'].idxmin()
+    maxDate = df['Close'].idxmax()
+    color = 'green' if endPrice > startPrice else 'red'
+    
+    fig = px.area(df, x=df.index, y='Close', height=325)
+    fig.update_traces(
+        line=dict(color=color),
+        hovertemplate='%{x|%Y/%m/%d - %H:%M}<br>Rp %{y:,.0f}<extra></extra>'
+    )
+    fig.update_xaxes(
+        title=None,
+        showticklabels=False,
+        type='category'
+    )
+    fig.update_yaxes(
+        title=None,
+        side='right',
+        showgrid=False,
+        zeroline=False,
+        showline=False,
+        range=[minClose, maxClose]
+        )
+    fig.add_hline(
+        y=startPrice,
+        line_dash='dot',
+        line_color='#eaeaea',
+    )
+    fig.add_annotation(
+        x=maxDate,
+        y=maxClose,
+        text=f'{maxClose:,.0f}',
+        yshift=20,
+        font=dict(color=color, size=12),
+        showarrow=False,
+    )
+    fig.add_annotation(
+        x=minDate,
+        y=minClose,
+        text=f'{minClose:,.0f}',
+        yshift=-20,
+        font=dict(color=color, size=12),
+        showarrow=False,
+    )
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=30, b=30),
+        hovermode='closest',
+        xaxis=dict(
+            showspikes=True,
+            spikemode='across',
+            spikecolor='#eaeaea',
+            spikethickness=0.7
+        ),
+        hoverlabel=dict(
+            bgcolor='rgba(0,0,0,0.7)',
+            font_color='white',
+            font_size=11
+        )
+    )
+    return fig
+
+# CONFIG
+mrktPriceSetup = {
+    '1D': {'period':'1d','interval':'1m'},
+    '7D': {'period':'7d','interval':'1h'},
+    '1M': {'period':'1mo','interval':'1d'},
+    '3M': {'period':'3mo','interval': '1d'},
+    '6M': {'period':'6mo','interval': '1d'},
+    'YTD': {'period':'ytd','interval': '1d'},
+    '1Y': {'period':'1y','interval':'1d'},
+    '3Y': {'period':'3y','interval': '1d'},
+    '5Y': {'period':'5y','interval':'1d'},
+    'All': {'period':'max','interval':'1d'}
+}
+
+chart = {
+    'displayModeBar': False,
+    'scrollZoom': False,
+    'doubleClick':'reset',
+    'dragmode': False
+    }
 
 pages = {
     'Market': [
