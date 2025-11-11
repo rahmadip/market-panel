@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit_app as app
 
 st.set_page_config(
     page_title='Crypto Panel',
