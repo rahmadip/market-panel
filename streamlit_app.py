@@ -34,6 +34,7 @@ def code(code):
     logo = f"https://logo.clearbit.com/{websiteParse}"
     price = ticker.info.get('currentPrice')
     shares = ticker.info.get('sharesOutstanding')
+    info = ticker.info.get('longBusinessSummary')
     
     incomestmtY = ticker.income_stmt
     incomestmtQ = ticker.quarterly_income_stmt
@@ -46,12 +47,42 @@ def code(code):
         'logo' : logo,
         'price' : price,
         'shares' : shares,
+        'info' : info,
         'marketCap' : price*shares,
         'incomestmtY' : incomestmtY,
         'incomestmtQ' : incomestmtQ,
         'balanceSheetY' : balanceSheetY,
         'balanceSheetQ' : balanceSheetQ
     }
+
+def dfIncomeStmt(
+    dataframe,
+    shares,
+    currentPrice,
+    period:str
+):
+    df = dataframe.loc[
+        [
+            'Total Revenue',
+            'Net Income'
+        ]
+    ]
+    df = df.dropna(
+        how='all',
+        axis=1
+    )
+    df.loc['EPS'] = (
+        df.loc['Net Income'].fillna(0) / shares
+    )
+    df.loc['PER'] = (
+        currentPrice / df.loc['EPS'].fillna(0)
+    )
+    if period == 'Y':
+        df.columns = df.columns.year
+    elif period == 'Q':
+        df.columns = pd.to_datetime(df.columns)
+        df.columns = [f"Q{(d.month - 1)//3 + 1} {d.year}" for d in df.columns]
+    return df
 
 # COMPONENT
 def headComp(
@@ -144,6 +175,54 @@ def mrktPriceGraph(df):
             font_color='white',
             font_size=11
         )
+    )
+    return fig
+
+def barGraph(df,v1,v2,n1,n2):
+    years = [str(d) for d in df.index]
+    quarter = any("Q" in str(x) for x in years)
+    
+    if quarter:
+        df = df.copy()
+        df["__order__"] = df.index.to_series().apply(
+            lambda x: int(x.split(" ")[1]) * 10 + int(x.split("Q")[1].split(" ")[0])
+        )
+        df = df.sort_values("__order__")
+        df = df.drop(columns="__order__")
+        v1 = v1.reindex(df.index)
+        v2 = v2.reindex(df.index)
+        indexX = list(df.index)
+    else:
+        df = df.sort_index(ascending=True)
+        v1 = v1.reindex(df.index)
+        v2 = v2.reindex(df.index)
+        indexX = [str(d) for d in df.index]
+        
+    fig = px.bar(
+        x=indexX,
+        y=[v1, v2],
+        barmode='group',
+        color_discrete_sequence=['#730000', '#ffa200'],
+        height=300
+    )
+    
+    for trace in fig.data:
+        trace.hovertemplate = 'Rp %{y:,.0f}<extra></extra>'
+    
+    fig.update_xaxes(title=None)
+    fig.update_yaxes(
+        title=None,
+        side='right',
+        exponentformat='SI',
+        showexponent='all',
+        tickformat='~s'
+    )
+    fig.data[0].name = n1
+    fig.data[1].name = n2
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=30, b=30),
+        legend_title=None,
+        legend=dict(orientation='h', y=-0.15, x=0),
     )
     return fig
 

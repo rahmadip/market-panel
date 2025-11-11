@@ -1,5 +1,4 @@
 import streamlit as st
-import yfinance as yf
 import streamlit_app as app
 
 st.set_page_config(
@@ -81,14 +80,146 @@ elif len(head) == 4:
                 st.write(f':orange[Shares]: {data['shares']:,.0f}')
                 st.info('under development')
             with aboutC:
-                st.info('under development')
+                st.write(data['info'])
 
     with c5:
         incomestmtC = st.container(border=True)
         with incomestmtC:
             st.subheader('Income Statement.')
             annualIS,quarterIS = st.tabs(['Annual', 'Quarter'])
-            st.info('under development')
+            with annualIS:
+                incomestmtYDF = app.dfIncomeStmt(
+                    data['incomestmtY'],
+                    data['shares'],
+                    data['price'],
+                    'Y'
+                )
+                st.plotly_chart(
+                    app.barGraph(
+                        incomestmtYDF.T,
+                        incomestmtYDF.loc['Total Revenue'],
+                        incomestmtYDF.loc['Net Income'],
+                        'Revenue',
+                        'Net Income'
+                    ),
+                    use_container_width=True,
+                    config=app.chart
+                )
+                annualISDetails = st.expander(
+                    'Annual Report',
+                    expanded=False,
+                )
+                with annualISDetails:
+                    annualISTabs = st.tabs(
+                        incomestmtYDF
+                        .columns
+                        .astype(str)
+                        .tolist()
+                    )
+                    for i, tab in enumerate(annualISTabs):
+                        with tab:
+                            annualISTabsC1,annualISTabsC2 = st.columns([2,1])
+                            with annualISTabsC1:
+                                st.write('Revenue (Rp)')
+                                st.write('Net Income (Rp)')
+                                st.write('EPS (Rp/Share)')
+                                st.write('PER')
+                            with annualISTabsC2:
+                                st.write(
+                                    app.formatNumber(
+                                        incomestmtYDF
+                                        .loc['Total Revenue']
+                                        .iloc[i]
+                                    )
+                                )
+                                st.write(
+                                    app.formatNumber(
+                                        incomestmtYDF
+                                        .loc['Net Income']
+                                        .iloc[i]
+                                    )
+                                )
+                                st.write(
+                                    app.formatNumber(
+                                        incomestmtYDF
+                                        .loc['EPS']
+                                        .iloc[i]
+                                    )
+                                )
+                                st.write(
+                                    app.formatNumber(
+                                        incomestmtYDF
+                                        .loc['PER']
+                                        .iloc[i]
+                                    )
+                                )
+
+            with quarterIS:
+                incomestmtQDF = app.dfIncomeStmt(
+                    data['incomestmtQ'],
+                    data['shares'],
+                    data['price'],
+                    'Q'
+                )
+                st.plotly_chart(
+                    app.barGraph(
+                        incomestmtQDF.T,
+                        incomestmtQDF.loc['Total Revenue'],
+                        incomestmtQDF.loc['Net Income'],
+                        'Revenue',
+                        'Net Income'
+                    ),
+                    use_container_width=True,
+                    config=app.chart
+                )
+                quarterISDetails = st.expander(
+                    'Quarter Report',
+                    expanded=False,
+                )
+                with quarterISDetails:
+                    quarterISTabs = st.tabs(
+                        incomestmtQDF
+                        .columns
+                        .astype(str)
+                        .tolist()
+                    )
+                    for i, tab in enumerate(quarterISTabs):
+                        with tab:
+                            quarterISTabsC1,quarterISTabsC2 = st.columns([2,1])
+                            with quarterISTabsC1:
+                                st.write('Revenue (Rp)')
+                                st.write('Net Income (Rp)')
+                                st.write('EPS (Rp/Share)')
+                                st.write('PER')
+                            with quarterISTabsC2:
+                                st.write(
+                                    app.formatNumber(
+                                        incomestmtQDF
+                                        .loc['Total Revenue']
+                                        .iloc[i]
+                                    )
+                                )
+                                st.write(
+                                    app.formatNumber(
+                                        incomestmtQDF
+                                        .loc['Net Income']
+                                        .iloc[i]
+                                    )
+                                )
+                                st.write(
+                                    app.formatNumber(
+                                        incomestmtQDF
+                                        .loc['EPS']
+                                        .iloc[i]
+                                    )
+                                )
+                                st.write(
+                                    app.formatNumber(
+                                        incomestmtQDF
+                                        .loc['PER']
+                                        .iloc[i]
+                                    )
+                                )
 
     with c6:
         balanceSheetC = st.container(border=True)
