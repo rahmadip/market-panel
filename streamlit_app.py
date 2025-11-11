@@ -34,7 +34,6 @@ def code(code):
     logo = f"https://logo.clearbit.com/{websiteParse}"
     price = ticker.info.get('currentPrice')
     shares = ticker.info.get('sharesOutstanding')
-    info = ticker.info.get('longBusinessSummary')
     
     incomestmtY = ticker.income_stmt
     incomestmtQ = ticker.quarterly_income_stmt
@@ -43,11 +42,9 @@ def code(code):
     return {
         'ticker': ticker,
         'name': ticker.info.get('shortName'),
-        'sector' : ticker.info.get('sector'),
         'logo' : logo,
         'price' : price,
         'shares' : shares,
-        'info' : info,
         'marketCap' : price*shares,
         'incomestmtY' : incomestmtY,
         'incomestmtQ' : incomestmtQ,

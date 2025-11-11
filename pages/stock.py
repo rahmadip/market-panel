@@ -62,26 +62,6 @@ elif len(head) == 4:
                     except Exception as e:
                         st.warning('data not available')
 
-        with st.expander(f'Summary', expanded=False):
-            summary1,summary2 = st.columns([1,9])
-            with summary1:
-                st.image(data['logo'])
-            with summary2:
-                st.metric(
-                    label=f':orange[{data['name']}]',
-                    value=head.upper()
-                )
-            infoC,aboutC = st.tabs(['More Information','About Company'])
-            with infoC:
-                st.write(f':orange[Ticker]: {head}')
-                st.write(f':orange[Company]: {data['name']}')
-                st.write(f':orange[Sector]: {data['sector']}')
-                st.write(f':orange[Market Cap]: Rp {app.formatNumber(data['marketCap'])}')
-                st.write(f':orange[Shares]: {data['shares']:,.0f}')
-                st.info('under development')
-            with aboutC:
-                st.write(data['info'])
-
     with c5:
         incomestmtC = st.container(border=True)
         with incomestmtC:
