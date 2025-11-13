@@ -77,9 +77,6 @@ def dfIncomeStmt(
     df.loc['EPS'] = (
         df.loc['Net Income'].fillna(0) / shares
     )
-    df.loc['PER'] = (
-        currentPrice / df.loc['EPS'].fillna(0)
-    )
     if period == 'Y':
         df.columns = df.columns.year
     elif period == 'Q':
@@ -103,12 +100,6 @@ def dfBalanceSheet(
     df = df.dropna(
         how='all',
         axis=1
-    )
-    df.loc['Book Value'] = (
-        df.loc['Stockholders Equity'].fillna(0) / shares
-    )
-    df.loc['PBV'] = (
-        currentPrice / df.loc['Book Value'].fillna(0)
     )
     if period == 'Y':
         df.columns = df.columns.year
