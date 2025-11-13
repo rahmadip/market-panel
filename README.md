@@ -1,18 +1,28 @@
-# 🎈 Blank app template
+# How to run the App.
 
-A simple Streamlit app template for you to modify!
+### A. Run via browser
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+The simplest way to run this app, just visit this link [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://market-panel.streamlit.app/). Or you can copy the link below:
 
-### How to run it on your own machine
+   ```
+   $ https://market-panel.streamlit.app/
+   ```
 
-1. Install the requirements
+### B. Run on your machine
+
+1. Download this repo or you can clone this repo via git
+
+   ```
+   $ git clone https://github.com/rahmadip/market-panel.git
+   ```
+
+2. Open this repo and install the requirements
 
    ```
    $ pip install -r requirements.txt
    ```
 
-2. Run the app
+3. Run the app via terminal
 
    ```
    $ streamlit run streamlit_app.py
