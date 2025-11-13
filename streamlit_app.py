@@ -8,6 +8,12 @@ from urllib.parse import urlparse
 def formatNumber(value):
     if pd.isna(value):
         return ''
+    elif abs(value) >= 1_000_000_000_000:
+        return (
+            f'{value/1_000_000_000_000:,.0f} T'
+            if value >= 0 else
+            f'({abs(value)/1_000_000_000_000:,.0f}) T'
+        )
     elif abs(value) >= 1_000_000_000:
         return (
             f'{value/1_000_000_000:,.0f} B'
@@ -81,6 +87,36 @@ def dfIncomeStmt(
         df.columns = [f"Q{(d.month - 1)//3 + 1} {d.year}" for d in df.columns]
     return df
 
+def dfBalanceSheet(
+    dataframe,
+    shares,
+    currentPrice,
+    period:str
+):
+    df = dataframe.loc[
+        [
+            'Total Assets',
+            'Total Liabilities Net Minority Interest',
+            'Stockholders Equity'
+        ]
+    ]
+    df = df.dropna(
+        how='all',
+        axis=1
+    )
+    df.loc['Book Value'] = (
+        df.loc['Stockholders Equity'].fillna(0) / shares
+    )
+    df.loc['PBV'] = (
+        currentPrice / df.loc['Book Value'].fillna(0)
+    )
+    if period == 'Y':
+        df.columns = df.columns.year
+    elif period == 'Q':
+        df.columns = pd.to_datetime(df.columns)
+        df.columns = [f"Q{(d.month - 1)//3 + 1} {d.year}" for d in df.columns]
+    return df
+
 # COMPONENT
 def headComp(
     icon:str,
@@ -89,11 +125,11 @@ def headComp(
     placeholder:str,
     info:str = None
 ):
-    c1,c2,c3 = st.columns(
-        spec=[0.7,4,3],
+    c1,c2 = st.columns(
+        spec=[4,3],
         border=True
     )
-    with c2:
+    with c1:
         st.subheader(
             body=f':material/{icon}: {title}',
             divider='orange'
@@ -105,7 +141,7 @@ def headComp(
             placeholder=placeholder,
             max_chars=4
         )
-    with c3:
+    with c2:
         st.write(':orange[_Information:_]')
         st.write(info)
     return key
@@ -117,7 +153,7 @@ def mrktPriceGraph(df):
     maxClose = float(df['Close'].max())
     minDate = df['Close'].idxmin()
     maxDate = df['Close'].idxmax()
-    color = 'green' if endPrice > startPrice else 'red'
+    color = '#ffa200' if endPrice > startPrice else '#fafafa'
     
     fig = px.area(df, x=df.index, y='Close', height=325)
     fig.update_traces(
@@ -199,7 +235,7 @@ def barGraph(df,v1,v2,n1,n2):
         x=indexX,
         y=[v1, v2],
         barmode='group',
-        color_discrete_sequence=['#730000', '#ffa200'],
+        color_discrete_sequence=['#ffa200','#fafafa'],
         height=300
     )
     
@@ -249,11 +285,6 @@ pages = {
         st.Page(
             page='pages/stock.py',
             title='Stock',
-            icon=':material/docs:'
-        ),
-        st.Page(
-            page='pages/crypto.py',
-            title='Crypto',
             icon=':material/docs:'
         )
     ]

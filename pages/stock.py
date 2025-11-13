@@ -10,7 +10,7 @@ st.set_page_config(
 
 head = app.headComp(
     icon='docs',
-    title='Stock Market [IDX]',
+    title='Stock Market IDX',
     typeKey='default',
     placeholder='Enter your code here',
     info='Designed for Indonesian Currency. Only works with IDX Ticker/Code. To check IDX Ticker list, please visit [IDX Stocklist](https://www.idx.co.id/en/market-data/stocks-data/stock-list). Data source from yfinance, data differences may occur. DYOR.'
@@ -23,11 +23,11 @@ elif len(head) == 4:
     
     data = app.code(head)
         
-    c4,c5,c6 = st.columns([2,1,1])
+    c4,c5 = st.columns([3,4])
     with c4:
         mrktPriceContainer = st.container(border=True)
         with mrktPriceContainer:
-            mpc1, mpc2 = st.columns([1,9])
+            mpc1, mpc2 = st.columns([1,7])
             with mpc1:
                 st.image(
                     data['logo'],
@@ -56,158 +56,111 @@ elif len(head) == 4:
                             else:
                                 st.plotly_chart(
                                     app.mrktPriceGraph(df),
-                                    use_container_width=True,
+                                    width='stretch',
                                     config=app.chart
                                 )
                     except Exception as e:
                         st.warning('data not available')
 
     with c5:
-        incomestmtC = st.container(border=True)
-        with incomestmtC:
-            st.subheader('Income Statement.')
-            annualIS,quarterIS = st.tabs(['Annual', 'Quarter'])
-            with annualIS:
-                incomestmtYDF = app.dfIncomeStmt(
-                    data['incomestmtY'],
-                    data['shares'],
-                    data['price'],
-                    'Y'
-                )
-                st.plotly_chart(
-                    app.barGraph(
-                        incomestmtYDF.T,
-                        incomestmtYDF.loc['Total Revenue'],
-                        incomestmtYDF.loc['Net Income'],
-                        'Revenue',
-                        'Net Income'
-                    ),
-                    use_container_width=True,
-                    config=app.chart
-                )
-                annualISDetails = st.expander(
-                    'Annual Report',
-                    expanded=False,
-                )
-                with annualISDetails:
-                    annualISTabs = st.tabs(
-                        incomestmtYDF
-                        .columns
-                        .astype(str)
-                        .tolist()
+        with st.container(border=True):
+            incomestmtC,balanceSheetC = st.tabs(['Income Statement','Balance Sheet'])
+            with incomestmtC:
+                annualIS,quarterIS = st.tabs(['Annual', 'Quarter'])
+                with annualIS:
+                    incomestmtYDF = app.dfIncomeStmt(
+                        data['incomestmtY'],
+                        data['shares'],
+                        data['price'],
+                        'Y'
                     )
-                    for i, tab in enumerate(annualISTabs):
-                        with tab:
-                            annualISTabsC1,annualISTabsC2 = st.columns([2,1])
-                            with annualISTabsC1:
-                                st.write('Revenue (Rp)')
-                                st.write('Net Income (Rp)')
-                                st.write('EPS (Rp/Share)')
-                                st.write('PER')
-                            with annualISTabsC2:
-                                st.write(
-                                    app.formatNumber(
-                                        incomestmtYDF
-                                        .loc['Total Revenue']
-                                        .iloc[i]
-                                    )
-                                )
-                                st.write(
-                                    app.formatNumber(
-                                        incomestmtYDF
-                                        .loc['Net Income']
-                                        .iloc[i]
-                                    )
-                                )
-                                st.write(
-                                    app.formatNumber(
-                                        incomestmtYDF
-                                        .loc['EPS']
-                                        .iloc[i]
-                                    )
-                                )
-                                st.write(
-                                    app.formatNumber(
-                                        incomestmtYDF
-                                        .loc['PER']
-                                        .iloc[i]
-                                    )
-                                )
-
-            with quarterIS:
-                incomestmtQDF = app.dfIncomeStmt(
-                    data['incomestmtQ'],
-                    data['shares'],
-                    data['price'],
-                    'Q'
-                )
-                st.plotly_chart(
-                    app.barGraph(
-                        incomestmtQDF.T,
-                        incomestmtQDF.loc['Total Revenue'],
-                        incomestmtQDF.loc['Net Income'],
-                        'Revenue',
-                        'Net Income'
-                    ),
-                    use_container_width=True,
-                    config=app.chart
-                )
-                quarterISDetails = st.expander(
-                    'Quarter Report',
-                    expanded=False,
-                )
-                with quarterISDetails:
-                    quarterISTabs = st.tabs(
-                        incomestmtQDF
-                        .columns
-                        .astype(str)
-                        .tolist()
+                    st.plotly_chart(
+                        app.barGraph(
+                            incomestmtYDF.T,
+                            incomestmtYDF.loc['Total Revenue'],
+                            incomestmtYDF.loc['Net Income'],
+                            'Revenue',
+                            'Net Income'
+                        ),
+                        width='stretch',
+                        config=app.chart
                     )
-                    for i, tab in enumerate(quarterISTabs):
-                        with tab:
-                            quarterISTabsC1,quarterISTabsC2 = st.columns([2,1])
-                            with quarterISTabsC1:
-                                st.write('Revenue (Rp)')
-                                st.write('Net Income (Rp)')
-                                st.write('EPS (Rp/Share)')
-                                st.write('PER')
-                            with quarterISTabsC2:
-                                st.write(
-                                    app.formatNumber(
-                                        incomestmtQDF
-                                        .loc['Total Revenue']
-                                        .iloc[i]
-                                    )
-                                )
-                                st.write(
-                                    app.formatNumber(
-                                        incomestmtQDF
-                                        .loc['Net Income']
-                                        .iloc[i]
-                                    )
-                                )
-                                st.write(
-                                    app.formatNumber(
-                                        incomestmtQDF
-                                        .loc['EPS']
-                                        .iloc[i]
-                                    )
-                                )
-                                st.write(
-                                    app.formatNumber(
-                                        incomestmtQDF
-                                        .loc['PER']
-                                        .iloc[i]
-                                    )
-                                )
+                    st.table(
+                        data=incomestmtYDF.map(app.formatNumber),
+                        border='horizontal'
+                    )
 
-    with c6:
-        balanceSheetC = st.container(border=True)
-        with balanceSheetC:
-            st.subheader('Balance Sheet.')
-            annualBS,quarterBS = st.tabs(['Annual','Quarter'])
-            st.info('under development')
-    
+                with quarterIS:
+                    incomestmtQDF = app.dfIncomeStmt(
+                        data['incomestmtQ'],
+                        data['shares'],
+                        data['price'],
+                        'Q'
+                    )
+                    st.plotly_chart(
+                        app.barGraph(
+                            incomestmtQDF.T,
+                            incomestmtQDF.loc['Total Revenue'],
+                            incomestmtQDF.loc['Net Income'],
+                            'Revenue',
+                            'Net Income'
+                        ),
+                        width='stretch',
+                        config=app.chart
+                    )
+                    st.table(
+                        data=incomestmtQDF.map(app.formatNumber),
+                        border='horizontal'
+                    )
+
+            with balanceSheetC:
+                annualBS,quarterBS = st.tabs(['Annual','Quarter'])
+                with annualBS:
+                    balanceSheetYDF = app.dfBalanceSheet(
+                        data['balanceSheetY'],
+                        data['shares'],
+                        data['price'],
+                        'Y'
+                    )
+                    st.plotly_chart(
+                        app.barGraph(
+                            balanceSheetYDF.T,
+                            balanceSheetYDF.loc['Total Assets'],
+                            balanceSheetYDF.loc['Total Liabilities Net Minority Interest'],
+                            'Assets',
+                            'Liabilities'
+                        ),
+                        width='stretch',
+                        config=app.chart
+                    )
+                    st.table(
+                        data=balanceSheetYDF.map(app.formatNumber),
+                        border='horizontal'
+                    )
+
+                with quarterBS:
+                    balanceSheetQDF = app.dfBalanceSheet(
+                        data['balanceSheetQ'],
+                        data['shares'],
+                        data['price'],
+                        'Q'
+                    )
+                    st.plotly_chart(
+                        app.barGraph(
+                            balanceSheetQDF.T,
+                            balanceSheetQDF.loc['Total Assets'],
+                            balanceSheetQDF.loc['Total Liabilities Net Minority Interest'],
+                            'Assets',
+                            'Liabilities'
+                        ),
+                        width='stretch',
+                        config=app.chart
+                    )
+                    st.table(
+                        data=balanceSheetQDF.map(app.formatNumber),
+                        border='horizontal'
+                    )
+
     pageStatus.progress(100)
 else:
     st.error('Incorrect code, please try again.')
