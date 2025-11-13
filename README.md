@@ -5,7 +5,7 @@
 The simplest way to run this app, just visit this link [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://market-panel.streamlit.app/). Or you can copy the link below:
 
    ```
-   $ https://market-panel.streamlit.app/
+   https://market-panel.streamlit.app/
    ```
 
 ### B. Run on your machine
